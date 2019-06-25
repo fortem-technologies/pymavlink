@@ -167,8 +167,8 @@ public class msg_${name_lower} extends MAVLinkMessage{
     */
     public MAVLinkPacket pack(){
         MAVLinkPacket packet = new MAVLinkPacket(MAVLINK_MSG_LENGTH);
-        packet.sysid = 255;
-        packet.compid = 190;
+        packet.sysid = this.sysid;
+        packet.compid = this.compid;
         packet.msgid = MAVLINK_MSG_ID_${name};
         ${{ordered_fields:      
         ${packField}
