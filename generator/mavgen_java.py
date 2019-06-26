@@ -192,6 +192,8 @@ public class msg_${name_lower} extends MAVLinkMessage{
     * Constructor for a new message, just initializes the msgid
     */
     public msg_${name_lower}(){
+        sysid = 255;
+        compid = 190;
         msgid = MAVLINK_MSG_ID_${name};
     }
 
