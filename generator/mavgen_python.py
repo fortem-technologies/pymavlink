@@ -31,7 +31,8 @@ from builtins import range
 from builtins import object
 import struct, array, time, json, os, sys, platform
 
-from ...generator.mavcrc import x25crc
+#from ...generator.mavcrc import x25crc
+from mavlink.pymavlink.generator.mavcrc import x25crc
 import hashlib
 
 WIRE_PROTOCOL_VERSION = '${WIRE_PROTOCOL_VERSION}'
