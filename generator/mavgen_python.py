@@ -290,6 +290,31 @@ def byname_hash_from_field_attribute(m, attribute):
         strings.append('"%s": "%s"' % (field.name, value))
     return ", ".join(strings)
 
+
+def generate_array_field_lengths(mavlink_msg):
+    """
+    argument is of type MAVType
+    generates the lengths of the array fields of this mavlink message
+    for example for mavlink msg NAMED_VALUE_INT this method will generate:
+        FIELD_NAME_LEN = 10
+    """
+    # if mavlink_msg.id == 252:
+    #     import pprint
+    #     pprint.pprint(mavlink_msg.__dict__)
+    #     for field in mavlink_msg.array_fields:
+    #         pprint.pprint(field.__dict__)
+    #         # print(field.array_length)
+    #     assert False
+
+    result = ''
+    INDENT = ' ' * 8
+    for field in mavlink_msg.array_fields:
+        if not result:
+            result += '\n'
+        result += '{}FIELD_{}_LEN = {}\n'.format(INDENT, field.name_upper, field.array_length)
+    return result
+
+
 def generate_classes(outf, msgs):
     print("Generating class definitions")
     wrapper = textwrap.TextWrapper(initial_indent="        ", subsequent_indent="        ")
@@ -322,7 +347,7 @@ class %s(MAVLink_message):
         array_lengths = %s
         crc_extra = %s
         unpacker = struct.Struct('%s')
-
+%s
         def __init__(self""" % (classname, wrapper.fill(m.description.strip()),
             m.name.upper(),
             m.name.upper(),
@@ -338,7 +363,10 @@ class %s(MAVLink_message):
             m.len_map,
             m.array_len_map,
             m.crc_extra,
-            m.fmtstr))
+            m.fmtstr,
+            generate_array_field_lengths(m),
+        ))
+
         for i in range(len(m.fields)):
                 fname = m.fieldnames[i]
                 if m.extensions_start is not None and i >= m.extensions_start:
@@ -919,6 +947,12 @@ def generate(basename, xml):
         for i in range(0, len(m.fieldnames)):
             n = m.order_map[i]
             m.len_map[n] = m.fieldlengths[i]
+
+        # populate array_fields
+        m.array_fields = []
+        for f in m.ordered_fields:
+            if f.array_length != 0:
+                m.array_fields.append(f)
 
     print("Generating %s" % filename)
     outf = open(filename, "w")
